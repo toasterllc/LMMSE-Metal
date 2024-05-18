@@ -66,7 +66,7 @@ int main(int argc, const char* argv[]) {
             LMMSE::Run(renderer, CFADesc, true, txtRaw, txtRgb);
             
             renderer.debugTextureShow(txtRgb);
-            
+            return 0;
             
             
             
