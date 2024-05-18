@@ -16,6 +16,15 @@ static bool _IsPNGFile(const fs::path& path) {
     return fs::is_regular_file(path) && path.extension() == ".png";
 }
 
+static Toastbox::Renderer::Txt _TextureForRaw(Toastbox::Renderer& renderer, size_t width, size_t height, const uint16_t* pixels) {
+    static constexpr uint32_t _ImagePixelMax = 0x0FFF; // 12 bit values
+    constexpr size_t SamplesPerPixel = 1;
+    constexpr size_t BytesPerSample = sizeof(*pixels);
+    Toastbox::Renderer::Txt raw = renderer.textureCreate(MTLPixelFormatR32Float, width, height);
+    renderer.textureWrite(raw, pixels, SamplesPerPixel, BytesPerSample, _ImagePixelMax);
+    return raw;
+}
+
 int main(int argc, const char* argv[]) {
     using namespace std::chrono;
     
@@ -44,29 +53,31 @@ int main(int argc, const char* argv[]) {
         if (_IsCFAFile(p)) {
             const Toastbox::Mmap mmap(p);
             const uint16_t* rawImageData = (uint16_t*)(mmap.data()+32);
+            constexpr size_t FullWidth = 2304;
+            constexpr size_t FullHeight = 1296;
             constexpr size_t ThumbWidth = 576;
             constexpr size_t ThumbHeight = 324;
+            
 //            const size_t rawImageDataLen = ThumbWidth * ThumbHeight * 2; // 373248 bytes
             
-            Toastbox::Renderer::Txt txtRaw = renderer.textureCreate(MTLPixelFormatR16Float, ThumbWidth, ThumbHeight);
-            renderer.textureWrite(txtRaw, rawImageData, 1);
+//            Toastbox::Renderer::Txt txtRaw = _TextureForRaw(renderer, FullWidth, FullHeight, rawImageData);
+            Toastbox::Renderer::Txt txtRaw = _TextureForRaw(renderer, ThumbWidth, ThumbHeight, rawImageData);
+            renderer.commitAndWait();
+            renderer.debugTextureWrite(txtRaw, fs::path(p.string()+".png"));
             
             
-            
-            
-            
-            constexpr MTLTextureUsage TxtRgbUsage =
-                MTLTextureUsageShaderRead   |
-                MTLTextureUsageShaderWrite  |
-                MTLTextureUsageRenderTarget ;
-            
-            Toastbox::Renderer::Txt txtRgb = renderer.textureCreate(MTLPixelFormatRGBA32Float,
-                [txtRaw width], [txtRaw height], TxtRgbUsage);
-            
-            LMMSE::Run(renderer, CFADesc, true, txtRaw, txtRgb);
-            
-            renderer.debugTextureShow(txtRgb);
-            return 0;
+//            constexpr MTLTextureUsage TxtRgbUsage =
+//                MTLTextureUsageShaderRead   |
+//                MTLTextureUsageShaderWrite  |
+//                MTLTextureUsageRenderTarget ;
+//            
+//            Toastbox::Renderer::Txt txtRgb = renderer.textureCreate(MTLPixelFormatRGBA32Float,
+//                [txtRaw width], [txtRaw height], TxtRgbUsage);
+//            
+//            LMMSE::Run(renderer, CFADesc, false, txtRaw, txtRgb);
+//            
+//            renderer.debugTextureShow(txtRgb);
+//            return 0;
             
             
             
@@ -86,6 +97,7 @@ int main(int argc, const char* argv[]) {
 //            printf("%s\n", p.string().c_str());
         }
     }
+    return 0;
     
     
     
