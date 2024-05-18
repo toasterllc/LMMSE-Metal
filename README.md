@@ -1,6 +1,6 @@
 # LMMSE-Metal
 
-This repo implements [Linear Minimum Mean Square-Error Estimation (LMMSE)](https://www4.comp.polyu.edu.hk/~cslzhang/paper/LMMSEdemosaicing.pdf) with C++ and Metal shaders. It's a translation of [Pascal Getreuer](https://www.ipol.im/pub/art/2011/g_zwld/)'s implementation to Metal.
+This repo implements debayering via [Linear Minimum Mean Square-Error Estimation (LMMSE)](https://www4.comp.polyu.edu.hk/~cslzhang/paper/LMMSEdemosaicing.pdf) with C++ and Metal shaders. It's a translation of [Pascal Getreuer](https://www.ipol.im/pub/art/2011/g_zwld/)'s implementation to Metal.
 
 This repo is used by the [Photon](https://toaster.llc/photon) camera to implement debayering.
 
