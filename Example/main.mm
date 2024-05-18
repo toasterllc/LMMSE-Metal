@@ -67,9 +67,7 @@ int main(int argc, const char* argv[]) {
         
         const microseconds duration = duration_cast<microseconds>(steady_clock::now()-timeStart);
         const microseconds durationAvg = duration / (ChunkCount*txts.size());
-        printf("FFCC took %ju us / image\n", (uintmax_t)durationAvg.count());
-        
-        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true);
+        printf("LMMSE took %ju us / image\n", (uintmax_t)durationAvg.count());
     }
     
     
