@@ -35,75 +35,8 @@ int main(int argc, const char* argv[]) {
     
     const fs::path imagesDir = fs::path(argv[0]).parent_path() / "Images";
     
-    
-    
-    
-    
-    
-    
-    
-    
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     Toastbox::Renderer renderer(device, [device newDefaultLibrary], [device newCommandQueue]);
-    
-    
-    
-    
-    for (const fs::path& p : fs::directory_iterator("/Users/dave/repos/LMMSE-Metal/Example/Images")) {
-        if (_IsCFAFile(p)) {
-            const Toastbox::Mmap mmap(p);
-            const uint16_t* rawImageData = (uint16_t*)(mmap.data()+32);
-            constexpr size_t FullWidth = 2304;
-            constexpr size_t FullHeight = 1296;
-            constexpr size_t ThumbWidth = 576;
-            constexpr size_t ThumbHeight = 324;
-            
-//            const size_t rawImageDataLen = ThumbWidth * ThumbHeight * 2; // 373248 bytes
-            
-//            Toastbox::Renderer::Txt txtRaw = _TextureForRaw(renderer, FullWidth, FullHeight, rawImageData);
-            Toastbox::Renderer::Txt txtRaw = _TextureForRaw(renderer, ThumbWidth, ThumbHeight, rawImageData);
-            renderer.commitAndWait();
-            renderer.debugTextureWrite(txtRaw, fs::path(p.string()+".png"));
-            
-            
-//            constexpr MTLTextureUsage TxtRgbUsage =
-//                MTLTextureUsageShaderRead   |
-//                MTLTextureUsageShaderWrite  |
-//                MTLTextureUsageRenderTarget ;
-//            
-//            Toastbox::Renderer::Txt txtRgb = renderer.textureCreate(MTLPixelFormatRGBA32Float,
-//                [txtRaw width], [txtRaw height], TxtRgbUsage);
-//            
-//            LMMSE::Run(renderer, CFADesc, false, txtRaw, txtRgb);
-//            
-//            renderer.debugTextureShow(txtRgb);
-//            return 0;
-            
-            
-            
-            
-            
-//            printf("path: %s\n", p.c_str());
-//            
-//            auto illuminant = FFCCModel::Run(renderer, txt);
-//            printf("illuminant: %f %f %f\n", illuminant[0], illuminant[1], illuminant[2]);
-//            
-//            renderer.commitAndWait();
-//            renderer.debugTextureWrite(txt, fs::path(p.string()+".png"));
-            
-//            renderer.debugTextureShow(txt);
-//            break;
-//            576 * 324 = 186624 pixels * 2 = 373248 bytes
-//            printf("%s\n", p.string().c_str());
-        }
-    }
-    return 0;
-    
-    
-    
-    
-    
-    
     MTKTextureLoader* txtLoader = [[MTKTextureLoader alloc] initWithDevice:device];
     std::vector<id<MTLTexture>> txts;
     for (const fs::path& p : fs::directory_iterator(imagesDir)) @autoreleasepool {
@@ -122,8 +55,10 @@ int main(int argc, const char* argv[]) {
             
             LMMSE::Run(renderer, CFADesc, true, txtRaw, txtRgb);
             
-            renderer.debugTextureShow(txtRgb);
-            return 0;
+            const fs::path outputPath = fs::path(p).replace_extension()+=std::string("-debayered.png");
+            printf("Writing %s\n", outputPath.c_str());
+            renderer.debugTextureWrite(txtRgb, outputPath);
+            system((std::string("open ") + outputPath.string()).c_str());
         }
     }
     
